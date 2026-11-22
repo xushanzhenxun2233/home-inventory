@@ -1,4 +1,4 @@
-/* 家物志 IndexedDB 本地持久化与完整迁移模块 */
+/* 藏笺 IndexedDB 本地持久化与完整迁移模块 */
 (function (global) {
   const DB_NAME = 'HomeInventoryDB';
   const DB_VERSION = 1;
@@ -162,7 +162,7 @@
   /* 导入迁移包：mode = 'merge'（智能合并） 或 'replace'（完全覆盖恢复） */
   async function importAllData(payload, mode = 'merge') {
     if (!payload || payload.app !== 'HomeInventory' || !payload.data) {
-      throw new Error('文件格式不正确，请选择由「家物志」导出的备份文件 (.json)');
+      throw new Error('文件格式不正确，请选择由「藏笺」导出的备份文件 (.json)');
     }
     const { items = [], shoppingLists = [], shoppingItems = [], settings = [] } = payload.data;
 

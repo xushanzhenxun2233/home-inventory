@@ -1,4 +1,4 @@
-/* 家物志 主应用交互逻辑 */
+/* 藏笺 主应用交互逻辑 */
 (function () {
   const DB = window.HomeDB;
 
@@ -653,7 +653,7 @@
       const jsonStr = JSON.stringify(payload);
       const d = new Date();
       const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
-      const filename = `家物志备份-${stamp}.json`;
+      const filename = `藏笺备份-${stamp}.json`;
       const blob = new Blob([jsonStr], { type: 'application/json' });
 
       // 移动端优先尝试系统分享（可直接发微信 / AirDrop / 保存到文件）
@@ -662,7 +662,7 @@
           const shareFile = new File([blob], filename, { type: 'application/json' });
           if (!navigator.canShare || navigator.canShare({ files: [shareFile] })) {
             await navigator.share({
-              title: '家物志完整数据迁移包',
+              title: '藏笺完整数据迁移包',
               text: '包含全部家用物品、位置照片与采购清单',
               files: [shareFile]
             });
@@ -718,7 +718,7 @@
 
   function openImportConfirm(payload, sourceLabel) {
     if (!payload || payload.app !== 'HomeInventory' || !payload.data) {
-      showToast('数据格式不正确，请选择有效的「家物志」备份文件');
+      showToast('数据格式不正确，请选择有效的「藏笺」备份文件');
       return;
     }
     state.pendingImportPayload = payload;

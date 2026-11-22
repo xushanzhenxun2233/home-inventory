@@ -1,6 +1,6 @@
 {
-  "name": "家物志 · 家用物品与采购记录",
-  "short_name": "家物志",
+  "name": "藏笺 · 家用物品与采购记录",
+  "short_name": "藏笺",
   "description": "家用物品库存、计数单位、位置照片与自定义采购清单，支持一键完整迁移到手机",
   "start_url": "./index.html",
   "display": "standalone",

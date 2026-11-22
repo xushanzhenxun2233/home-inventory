@@ -1,4 +1,4 @@
-﻿# 家物志 · 零依赖局域网手机访问与无线同步服务 (Windows PowerShell)
+﻿# 藏笺 · 零依赖局域网手机访问与无线同步服务 (Windows PowerShell)
 param(
   [int]$Port = 8088
 )
@@ -45,7 +45,7 @@ $listener.Start()
 
 Write-Host ''
 Write-Host '======================================================' -ForegroundColor Green
-Write-Host '  家物志 · 局域网手机访问 & 无线同步服务已启动！' -ForegroundColor Green
+Write-Host '  藏笺 · 局域网手机访问 & 无线同步服务已启动！' -ForegroundColor Green
 Write-Host '======================================================' -ForegroundColor Green
 Write-Host ''
 Write-Host "电脑访问地址:  http://127.0.0.1:$Port" -ForegroundColor Cyan

@@ -34,8 +34,8 @@ jobs:
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           cat > capacitor.config.json << 'EOF'
           {
-            "appId": "com.jiawuzhi.homeinventory",
-            "appName": "家物志",
+            "appId": "com.cangjian.app",
+            "appName": "藏笺",
             "webDir": "www",
             "android": {
               "allowMixedContent": true
@@ -60,13 +60,13 @@ jobs:
 
       - name: Rename APK
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk jiawuzhi-android.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk cangjian-android.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jiawuzhi-android-apk
-          path: jiawuzhi-android.apk
+          name: cangjian-android-apk
+          path: cangjian-android.apk
 
       - name: Publish APK to GitHub Release
         env:
@@ -74,9 +74,10 @@ jobs:
         run: |
           TAG="latest-apk"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" jiawuzhi-android.apk --clobber
+            gh release upload "$TAG" cangjian-android.apk --clobber
+            gh release edit "$TAG" --title "藏笺 Android APK 安装包" --notes "自动构建的 Android 安装包（包名 com.cangjian.app），下载 cangjian-android.apk 后可直接在安卓手机安装使用（含完整本地存储、位置拍照、自定义采购清单及数据导出迁移功能）。"
           else
-            gh release create "$TAG" jiawuzhi-android.apk \
-              --title "家物志 Android APK 安装包" \
-              --notes "自动构建的 Android 安装包，下载 jiawuzhi-android.apk 后可直接在安卓手机安装使用（含完整本地存储、位置拍照、自定义采购清单及数据导出迁移功能）。"
+            gh release create "$TAG" cangjian-android.apk \
+              --title "藏笺 Android APK 安装包" \
+              --notes "自动构建的 Android 安装包（包名 com.cangjian.app），下载 cangjian-android.apk 后可直接在安卓手机安装使用（含完整本地存储、位置拍照、自定义采购清单及数据导出迁移功能）。"
           fi
