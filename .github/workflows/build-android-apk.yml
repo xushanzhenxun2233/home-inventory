@@ -29,7 +29,7 @@ jobs:
       - name: Prepare Capacitor Android project
         run: |
           mkdir -p www
-          cp index.html styles.css db.js app.js manifest.json sw.js icon.svg www/
+          cp index.html styles.css db.js app.js manifest.json sw.js icon.png icon-192.png www/
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           cat > capacitor.config.json << 'EOF'
@@ -44,6 +44,54 @@ jobs:
           EOF
           npx cap add android
           npx cap sync android
+
+      - name: Apply Custom Launcher Icon
+        run: |
+          python3 -m pip install -q pillow
+          python3 - << 'PYEOF'
+          from PIL import Image, ImageDraw
+          import os
+
+          src = Image.open('icon.png').convert('RGBA')
+          res_dir = 'android/app/src/main/res'
+
+          sizes = {
+              'mipmap-mdpi': (48, 108),
+              'mipmap-hdpi': (72, 162),
+              'mipmap-xhdpi': (96, 216),
+              'mipmap-xxhdpi': (144, 324),
+              'mipmap-xxxhdpi': (192, 432),
+          }
+
+          for folder, (icon_sz, fg_sz) in sizes.items():
+              out_dir = os.path.join(res_dir, folder)
+              os.makedirs(out_dir, exist_ok=True)
+
+              # Square launcher icon
+              sq = src.resize((icon_sz, icon_sz), Image.Resampling.LANCZOS)
+              sq.save(os.path.join(out_dir, 'ic_launcher.png'))
+
+              # Round launcher icon
+              mask = Image.new('L', (icon_sz, icon_sz), 0)
+              ImageDraw.Draw(mask).ellipse((0, 0, icon_sz, icon_sz), fill=255)
+              rd = Image.new('RGBA', (icon_sz, icon_sz), (0, 0, 0, 0))
+              rd.paste(sq, (0, 0), mask)
+              rd.save(os.path.join(out_dir, 'ic_launcher_round.png'))
+
+              # Adaptive icon foreground (centered at 76% inside safe zone)
+              bg_color = src.getpixel((5, 5))
+              fg = Image.new('RGBA', (fg_sz, fg_sz), bg_color)
+              inner_sz = int(round(fg_sz * 0.76))
+              inner = src.resize((inner_sz, inner_sz), Image.Resampling.LANCZOS)
+              pad = (fg_sz - inner_sz) // 2
+              fg.paste(inner, (pad, pad), inner)
+              fg.save(os.path.join(out_dir, 'ic_launcher_foreground.png'))
+
+          # Match adaptive icon background color to pale sky-blue
+          bg_xml = os.path.join(res_dir, 'values', 'ic_launcher_background.xml')
+          with open(bg_xml, 'w', encoding='utf-8') as f:
+              f.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#F4F9FC</color>\n</resources>\n')
+          PYEOF
 
       - name: Add Camera permission to AndroidManifest
         run: |

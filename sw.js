@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cangjian-v2';
+const CACHE_NAME = 'cangjian-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,8 @@ const ASSETS = [
   './db.js',
   './app.js',
   './manifest.json',
-  './icon.svg'
+  './icon.png',
+  './icon-192.png'
 ];
 
 self.addEventListener('install', (event) => {
