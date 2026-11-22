@@ -1,0 +1,82 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Prepare Capacitor Android project
+        run: |
+          mkdir -p www
+          cp index.html styles.css db.js app.js manifest.json sw.js icon.svg www/
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+          cat > capacitor.config.json << 'EOF'
+          {
+            "appId": "com.jiawuzhi.homeinventory",
+            "appName": "家物志",
+            "webDir": "www",
+            "android": {
+              "allowMixedContent": true
+            }
+          }
+          EOF
+          npx cap add android
+          npx cap sync android
+
+      - name: Add Camera permission to AndroidManifest
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          if ! grep -q "android.permission.CAMERA" "$MANIFEST"; then
+            sed -i 's|<uses-permission android:name="android.permission.INTERNET" />|<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.CAMERA" />|' "$MANIFEST"
+          fi
+
+      - name: Build Debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk jiawuzhi-android.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jiawuzhi-android-apk
+          path: jiawuzhi-android.apk
+
+      - name: Publish APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="latest-apk"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" jiawuzhi-android.apk --clobber
+          else
+            gh release create "$TAG" jiawuzhi-android.apk \
+              --title "家物志 Android APK 安装包" \
+              --notes "自动构建的 Android 安装包，下载 jiawuzhi-android.apk 后可直接在安卓手机安装使用（含完整本地存储、位置拍照、自定义采购清单及数据导出迁移功能）。"
+          fi

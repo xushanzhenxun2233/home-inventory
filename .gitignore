@@ -1,0 +1,6 @@
+sync-cache.json
+node_modules/
+android/
+www/
+.DS_Store
+Thumbs.db
